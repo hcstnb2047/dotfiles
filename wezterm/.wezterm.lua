@@ -102,6 +102,10 @@ config.keys = {
   -- 透明度調整
   { key = 'u', mods = 'CTRL|SHIFT', action = wezterm.action.IncreaseFontSize },
   { key = 'd', mods = 'CTRL',       action = wezterm.action.DecreaseFontSize },
+  -- マウスレポートを全モード無効化
+  { key = 'F12', mods = '', action = wezterm.action.SendString(
+    '\x1b[?1000l\x1b[?1002l\x1b[?1003l\x1b[?1006l\x1b[?1015l'
+  ) },
 }
 
 return config
