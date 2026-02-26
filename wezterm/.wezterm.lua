@@ -5,7 +5,7 @@ local config = wezterm.config_builder()
 config.default_domain = 'WSL:Ubuntu'
 
 -- 半透明設定
-config.window_background_opacity = 0.55
+config.window_background_opacity = 0.35
 config.win32_system_backdrop = 'Acrylic'  -- Windows 11: Acrylic / Mica / Tabbed
 
 -- フォント設定
@@ -62,7 +62,7 @@ config.colors = {
 }
 
 -- ウィンドウ設定
-config.window_decorations = 'RESIZE'  -- タイトルバーを非表示にしてリサイズのみ有効
+config.window_decorations = 'TITLE|RESIZE'  -- タイトルバー + リサイズ有効
 config.window_padding = {
   left = 8,
   right = 8,
