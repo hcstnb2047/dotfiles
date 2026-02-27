@@ -13,5 +13,19 @@ else
   echo "Already in $ZSHRC, skipping"
 fi
 
+# Claude Code skills (.claude/commands/)
+CLAUDE_COMMANDS="$HOME/.claude/commands"
+mkdir -p "$CLAUDE_COMMANDS"
+for src in "$DOTFILES/.claude/commands/"*.md; do
+  name="$(basename "$src")"
+  dest="$CLAUDE_COMMANDS/$name"
+  if [ -L "$dest" ]; then
+    echo "Symlink already exists: $dest, skipping"
+  else
+    ln -sf "$src" "$dest"
+    echo "Linked $name -> $dest"
+  fi
+done
+
 echo ""
 echo "Done. Run 'source ~/.zshrc' or restart your shell to apply."
