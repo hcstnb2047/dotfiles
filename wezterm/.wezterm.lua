@@ -4,9 +4,10 @@ local config = wezterm.config_builder()
 -- ドメイン設定
 config.default_domain = 'WSL:Ubuntu'
 
--- 半透明設定 (Acrylic必須: Micaはopacity非対応)
-config.window_background_opacity = 0.35
-config.win32_system_backdrop = 'Acrylic'
+-- 半透明設定
+-- win32_system_backdrop はwindow_background_opacityの動的変更と干渉するため無効化
+config.window_background_opacity = 0.8
+-- config.win32_system_backdrop = 'Acrylic'
 
 -- フォーカス離脱時の暗転を無効化
 config.inactive_pane_hsb = {
@@ -121,9 +122,9 @@ config.keys = {
 wezterm.on('window-focus-changed', function(window, pane)
   local overrides = window:get_config_overrides() or {}
   if window:is_focused() then
-    overrides.window_background_opacity = 0.35
+    overrides.window_background_opacity = 0.8
   else
-    overrides.window_background_opacity = 0.15
+    overrides.window_background_opacity = 0.75
   end
   window:set_config_overrides(overrides)
 end)
