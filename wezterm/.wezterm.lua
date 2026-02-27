@@ -8,6 +8,12 @@ config.default_domain = 'WSL:Ubuntu'
 config.window_background_opacity = 0.35
 config.win32_system_backdrop = 'Mica'  -- Windows 11: Acrylic / Mica / Tabbed
 
+-- フォーカス離脱時の暗転を無効化
+config.inactive_pane_hsb = {
+  saturation = 1.0,
+  brightness = 1.0,
+}
+
 -- フロントエンド（ちらつき対策）
 config.front_end = "OpenGL"
 
