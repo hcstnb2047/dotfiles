@@ -30,7 +30,7 @@ dotfilesの編集を支援するコマンド。以下のルールを必ず守る
 - エイリアスは `zsh/aliases.zsh` に追記する
 
 ### git
-- **作業後は必ず `git add -A && git commit -m "変更内容" && git push` すること**
+- **作業後は必ず commit & push すること。コミットメッセージは変更内容を見て適宜考える**
 
 ## 手順
 
