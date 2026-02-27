@@ -4,9 +4,9 @@ local config = wezterm.config_builder()
 -- ドメイン設定
 config.default_domain = 'WSL:Ubuntu'
 
--- 半透明設定
+-- 半透明設定 (Acrylic必須: Micaはopacity非対応)
 config.window_background_opacity = 0.35
-config.win32_system_backdrop = 'Mica'  -- Windows 11: Acrylic / Mica / Tabbed
+config.win32_system_backdrop = 'Acrylic'
 
 -- フォーカス離脱時の暗転を無効化
 config.inactive_pane_hsb = {
@@ -15,7 +15,7 @@ config.inactive_pane_hsb = {
 }
 
 -- フロントエンド（ちらつき対策）
-config.front_end = "OpenGL"
+config.front_end = 'OpenGL'
 
 -- フォント設定
 config.font = wezterm.font_with_fallback {
@@ -108,7 +108,7 @@ config.keys = {
   -- ペイン分割
   { key = 'd', mods = 'CTRL|SHIFT', action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' } },
   { key = 'e', mods = 'CTRL|SHIFT', action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' } },
-  -- 透明度調整
+  -- フォントサイズ調整
   { key = 'u', mods = 'CTRL|SHIFT', action = wezterm.action.IncreaseFontSize },
   { key = 'd', mods = 'CTRL',       action = wezterm.action.DecreaseFontSize },
   -- マウスレポートを全モード無効化
@@ -116,5 +116,16 @@ config.keys = {
     '\x1b[?1000l\x1b[?1002l\x1b[?1003l\x1b[?1006l\x1b[?1015l'
   ) },
 }
+
+-- フォーカスアウト時の透明度 (フォーカス: 0.35 / 非フォーカス: 0.15)
+wezterm.on('window-focus-changed', function(window, pane)
+  local overrides = window:get_config_overrides() or {}
+  if window:is_focused() then
+    overrides.window_background_opacity = 0.35
+  else
+    overrides.window_background_opacity = 0.15
+  end
+  window:set_config_overrides(overrides)
+end)
 
 return config
