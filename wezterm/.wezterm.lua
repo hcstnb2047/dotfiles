@@ -6,7 +6,10 @@ config.default_domain = 'WSL:Ubuntu'
 
 -- 半透明設定
 config.window_background_opacity = 0.35
-config.win32_system_backdrop = 'Acrylic'  -- Windows 11: Acrylic / Mica / Tabbed
+config.win32_system_backdrop = 'Mica'  -- Windows 11: Acrylic / Mica / Tabbed
+
+-- フロントエンド（ちらつき対策）
+config.front_end = "OpenGL"
 
 -- フォント設定
 config.font = wezterm.font_with_fallback {
