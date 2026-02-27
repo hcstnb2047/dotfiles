@@ -91,6 +91,20 @@ config.hide_tab_bar_if_only_one_tab = true
 -- スクロールバック
 config.scrollback_lines = 10000
 
+-- マウスレポーティング中もホイールスクロールをWezTermが処理する
+config.mouse_bindings = {
+  {
+    event = { Down = { streak = 1, button = { WheelUp = 1 } } },
+    mods = 'NONE',
+    action = wezterm.action.ScrollByLine(-3),
+  },
+  {
+    event = { Down = { streak = 1, button = { WheelDown = 1 } } },
+    mods = 'NONE',
+    action = wezterm.action.ScrollByLine(3),
+  },
+}
+
 -- カーソル
 config.default_cursor_style = 'BlinkingBar'
 config.cursor_blink_rate = 500
