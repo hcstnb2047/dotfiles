@@ -9,10 +9,10 @@ config.default_domain = 'WSL:Ubuntu'
 config.window_background_opacity = 0.8
 -- config.win32_system_backdrop = 'Acrylic'
 
--- フォーカス離脱時の暗転を無効化
+-- 非アクティブペインを暗転（アクティブペインを際立たせる）
 config.inactive_pane_hsb = {
-  saturation = 1.0,
-  brightness = 1.0,
+  saturation = 0.7,
+  brightness = 0.6,
 }
 
 -- フロントエンド（ちらつき対策）
@@ -60,6 +60,9 @@ config.colors = {
     '#26c6da',  -- bright cyan
     '#eceff1',  -- bright white
   },
+
+  -- ペイン境界線（アクティブペインの輪郭を強調）
+  split = '#42a5f5',
 
   tab_bar = {
     background        = '#0a1628',
