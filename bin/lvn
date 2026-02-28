@@ -1,0 +1,4 @@
+#!/bin/bash
+tmux start-server
+tmux set-option -g mouse on
+cd ~/LifeVault && tmux new-session "claude"

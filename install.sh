@@ -27,5 +27,29 @@ for src in "$DOTFILES/.claude/commands/"*.md; do
   fi
 done
 
+# ~/bin/ scripts
+mkdir -p "$HOME/bin"
+for src in "$DOTFILES/bin/"*; do
+  name="$(basename "$src")"
+  dest="$HOME/bin/$name"
+  if [ -L "$dest" ]; then
+    echo "Symlink already exists: $dest, skipping"
+  else
+    ln -sf "$src" "$dest"
+    chmod +x "$src"
+    echo "Linked $name -> $dest"
+  fi
+done
+
+# tmux config
+TMUX_SRC="$DOTFILES/tmux/.tmux.conf"
+TMUX_DEST="$HOME/.tmux.conf"
+if [ -L "$TMUX_DEST" ]; then
+  echo "Symlink already exists: $TMUX_DEST, skipping"
+else
+  ln -sf "$TMUX_SRC" "$TMUX_DEST"
+  echo "Linked .tmux.conf -> $TMUX_DEST"
+fi
+
 echo ""
 echo "Done. Run 'source ~/.zshrc' or restart your shell to apply."
