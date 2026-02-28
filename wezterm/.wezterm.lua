@@ -135,6 +135,16 @@ config.keys = {
   ) },
 }
 
+-- コピーモードのキーバインド
+-- デフォルトのcopy_modeバインドに追記（置換ではない）
+config.key_tables = {
+  copy_mode = {
+    -- Shift+PgUp/Downでページスクロール（カーソルがビューポート端に達しても続けてスクロール）
+    { key = 'PageUp',   mods = 'SHIFT', action = wezterm.action.CopyMode { MoveByPage = -1.0 } },
+    { key = 'PageDown', mods = 'SHIFT', action = wezterm.action.CopyMode { MoveByPage =  1.0 } },
+  },
+}
+
 -- フォーカスアウト時の透明度 (フォーカス: 0.35 / 非フォーカス: 0.15)
 wezterm.on('window-focus-changed', function(window, pane)
   local overrides = window:get_config_overrides() or {}
