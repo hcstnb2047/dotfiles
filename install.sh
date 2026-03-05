@@ -41,6 +41,37 @@ for src in "$DOTFILES/bin/"*; do
   fi
 done
 
+# Claude Code statusline scripts (~/.claude/statusline.sh, statusline.py)
+mkdir -p "$HOME/.claude"
+for src in "$DOTFILES/.claude/statusline.sh" "$DOTFILES/.claude/statusline.py"; do
+  name="$(basename "$src")"
+  dest="$HOME/.claude/$name"
+  if [ -L "$dest" ]; then
+    echo "Symlink already exists: $dest, skipping"
+  else
+    ln -sf "$src" "$dest"
+    chmod +x "$src"
+    echo "Linked $name -> $dest"
+  fi
+done
+
+# Claude Code global settings.json: statusLine entry
+SETTINGS="$HOME/.claude/settings.json"
+if [ -f "$SETTINGS" ] && python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if 'statusLine' in d else 1)" 2>/dev/null; then
+  echo "settings.json already has statusLine, skipping"
+elif [ -f "$SETTINGS" ]; then
+  python3 -c "
+import json
+with open('$SETTINGS') as f: d = json.load(f)
+d['statusLine'] = {'type': 'command', 'command': 'bash ~/.claude/statusline.sh'}
+with open('$SETTINGS', 'w') as f: json.dump(d, f, indent=2, ensure_ascii=False)
+print('Added statusLine to settings.json')
+"
+else
+  echo '{"statusLine":{"type":"command","command":"bash ~/.claude/statusline.sh"}}' > "$SETTINGS"
+  echo "Created settings.json with statusLine"
+fi
+
 # tmux config
 TMUX_SRC="$DOTFILES/tmux/.tmux.conf"
 TMUX_DEST="$HOME/.tmux.conf"
