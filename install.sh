@@ -3,14 +3,18 @@
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ZSHRC="$HOME/.zshrc"
-SOURCE_LINE="[ -f \"$DOTFILES/zsh/aliases.zsh\" ] && source \"$DOTFILES/zsh/aliases.zsh\""
 
-# zsh aliases
-if ! grep -qF "$DOTFILES/zsh/aliases.zsh" "$ZSHRC" 2>/dev/null; then
-  echo "$SOURCE_LINE" >> "$ZSHRC"
-  echo "Added aliases to $ZSHRC"
+# zshrc symlink
+if [ -L "$ZSHRC" ]; then
+  echo "Symlink already exists: $ZSHRC, skipping"
+elif [ -f "$ZSHRC" ]; then
+  mv "$ZSHRC" "$ZSHRC.bak"
+  echo "Backed up existing $ZSHRC to $ZSHRC.bak"
+  ln -sf "$DOTFILES/zsh/.zshrc" "$ZSHRC"
+  echo "Linked .zshrc -> $ZSHRC"
 else
-  echo "Already in $ZSHRC, skipping"
+  ln -sf "$DOTFILES/zsh/.zshrc" "$ZSHRC"
+  echo "Linked .zshrc -> $ZSHRC"
 fi
 
 # Claude Code skills (.claude/commands/)
