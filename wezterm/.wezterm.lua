@@ -94,16 +94,17 @@ config.hide_tab_bar_if_only_one_tab = true
 -- スクロールバック
 config.scrollback_lines = 10000
 
--- マウスレポーティング中もホイールスクロールをWezTermが処理する
+-- Shift+ホイールでWezTermのスクロールバックを直接操作
+-- 通常スクロール(mods=NONE)はtmuxに転送してcopy-modeを使う
 config.mouse_bindings = {
   {
     event = { Down = { streak = 1, button = { WheelUp = 1 } } },
-    mods = 'NONE',
+    mods = 'SHIFT',
     action = wezterm.action.ScrollByLine(-3),
   },
   {
     event = { Down = { streak = 1, button = { WheelDown = 1 } } },
-    mods = 'NONE',
+    mods = 'SHIFT',
     action = wezterm.action.ScrollByLine(3),
   },
 }
