@@ -30,6 +30,18 @@ for src in "$DOTFILES/.claude/commands/"*.md; do
     echo "Linked $name -> $dest"
   fi
 done
+# Subdirectories (e.g. kiro/)
+for src in "$DOTFILES/.claude/commands/"/*/; do
+  [ -d "$src" ] || continue
+  name="$(basename "$src")"
+  dest="$CLAUDE_COMMANDS/$name"
+  if [ -L "$dest" ]; then
+    echo "Symlink already exists: $dest, skipping"
+  else
+    ln -sf "$src" "$dest"
+    echo "Linked $name/ -> $dest"
+  fi
+done
 
 # ~/bin/ scripts
 mkdir -p "$HOME/bin"
