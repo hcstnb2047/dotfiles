@@ -1,6 +1,6 @@
 ---
 description: Run parallel AI pre-review on a specification phase before human approval
-allowed-tools: Read, Glob, Agent, Write
+allowed-tools: Read, Glob, Agent, Write, WebSearch, WebFetch
 argument-hint: <feature-name> [--phase=requirements|design|tasks]
 ---
 
@@ -143,7 +143,7 @@ Output format per finding:
 S-N | [Lens] | [Priority: High/Medium/Low] | [1-2 sentence description]
 ```
 
-### Step 4: Synthesize and Write Human Review Agenda
+### Step 4: Synthesize Findings
 
 Collect all findings (C-*, P-*, S-*). Then:
 
@@ -154,7 +154,29 @@ Collect all findings (C-*, P-*, S-*). Then:
    - 要修正 (Needs revision) — 1-3 High priority findings
    - 要再設計 (Needs redesign) — multiple High findings or fundamental framing issue
 
+### Step 4.5: Best Practice Research (for High/Medium findings with known patterns)
+
+For each High and Medium finding where the issue involves a **design decision that has established best practices** (e.g., auth patterns, data modeling, API design, error handling strategies, caching approaches):
+
+1. Identify whether this is a "general best practice exists" question or a "depends on user intent" question
+   - General best practice → proceed with WebSearch
+   - User-intent dependent → skip; flag for human judgment instead
+
+2. Run WebSearch: `"[finding topic] best practice [tech stack if known]"` or equivalent
+   - Max 1-2 searches per finding; do not over-research
+   - If no clear consensus found in 2 searches, skip and note "明確な標準解なし"
+
+3. Record findings as `BP-N` references to attach to the review report
+
+**Do NOT research**:
+- Business logic decisions (only user can decide)
+- Findings flagged Low priority
+- Spec framing / problem definition issues
+
+### Step 5: Write Human Review Agenda
+
 Write the full report to `.kiro/specs/$1/review-[phase].md` (e.g. `review-requirements.md`).
+Include a `## ベストプラクティス参考` section if any BP-N references were found.
 
 Display a concise summary to the console.
 
@@ -199,6 +221,10 @@ N. **[Finding title]** `[source]`
 ## 推奨アクション
 - [ ] [Specific action 1]
 - [ ] [Specific action 2]
+
+## ベストプラクティス参考
+<!-- Step 4.5 でリサーチした内容のみ記載。リサーチ不要だった場合はこのセクションを省略 -->
+- **BP-1** `[Finding ID]` — [best practice summary] ([source URL])
 
 ## 次のステップ
 - High Priorityがある場合: 修正後に `/kiro:spec-review $1 --phase=[phase]` を再実行
