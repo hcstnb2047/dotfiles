@@ -64,8 +64,21 @@ export NTFY_TOPIC="claude-tnb-38107469"
 alias ollama-chat='docker exec -it local-llm-ollama-1 ollama run qwen2.5-coder:7b'
 
 # life-claude 環境への遷移
-alias lv='cd /home/tnb/life-claude && claude --resume'
-alias lvn='cd /home/tnb/life-claude && claude'
+alias lv='cd /home/tnb/life-claude && CLAUDE_CODE_NO_FLICKER=1 claude --resume'
+alias lvn='cd /home/tnb/life-claude && CLAUDE_CODE_NO_FLICKER=1 claude'
+
+# tmux セッション選択（fzf）
+ta() {
+  local session
+  session=$(tmux ls -F "#{session_last_attached} #{session_name}: #{session_windows} windows" 2>/dev/null | sort -rn | sed 's/^[0-9]* //' | fzf --height=10 --prompt="attach> " | cut -d: -f1)
+  if [ -n "$session" ]; then
+    if [ -n "$TMUX" ]; then
+      tmux switch-client -t "$session"
+    else
+      tmux attach -t "$session"
+    fi
+  fi
+}
 
 # life-data path
 export LIFE_DATA="/home/tnb/life-data"
@@ -74,11 +87,7 @@ export LIFE_DATA="/home/tnb/life-data"
 [ -f "$HOME/dotfiles/zsh/aliases.zsh" ] && source "$HOME/dotfiles/zsh/aliases.zsh"
 
 # Auto-attach tmux on SSH (for scrollback support)
-# 既存セッションがあれば grouped session で接続（各接続が独立したビューを持つ）
+# 接続ごとに独立した新規セッションを作成（並列作業を可能にするため）
 if [ -z "$TMUX" ]; then
-  if tmux has-session 2>/dev/null; then
-    exec tmux new-session -t main
-  else
-    exec tmux new-session -s main
-  fi
+  exec tmux new-session
 fi
