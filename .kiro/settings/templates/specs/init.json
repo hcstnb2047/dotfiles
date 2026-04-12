@@ -1,0 +1,35 @@
+{
+  "feature_name": "{{FEATURE_NAME}}",
+  "created_at": "{{TIMESTAMP}}",
+  "updated_at": "{{TIMESTAMP}}",
+  "language": "ja",
+  "phase": "initialized",
+  "approvals": {
+    "requirements": {
+      "generated": false,
+      "approved": false
+    },
+    "design": {
+      "generated": false,
+      "approved": false
+    },
+    "tasks": {
+      "generated": false,
+      "approved": false
+    }
+  },
+  "ready_for_implementation": false,
+  "parallel_tasks": true,
+  "feedback_format": "json",
+  "boundaries": {
+    "always": [],
+    "ask_first": [],
+    "never": []
+  },
+  "quality_gates": {
+    "pre_implementation": ["requirements_completeness", "clarification_resolved"],
+    "post_implementation": ["traceability_check", "test_regression_guard"]
+  }
+}
+
+
