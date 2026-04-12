@@ -143,6 +143,14 @@ Output format per finding:
 S-N | [Lens] | [Priority: High/Medium/Low] | [1-2 sentence description]
 ```
 
+### Step 3.5: NEEDS CLARIFICATION Check
+
+Before synthesizing agent findings, scan all loaded spec artifacts for unresolved `[NEEDS CLARIFICATION: ...]` markers:
+
+- If any markers found: add a High priority finding `NC-N | Clarification Required | High | Unresolved marker: "<marker text>"` for each one
+- These block approval regardless of other findings (recommendation becomes 要修正 at minimum)
+- If no markers found: proceed normally
+
 ### Step 4: Synthesize Findings
 
 Collect all findings (C-*, P-*, S-*). Then:
@@ -150,8 +158,8 @@ Collect all findings (C-*, P-*, S-*). Then:
 1. **Merge and deduplicate**: If multiple agents raised the same issue, merge them and note all sources
 2. **Assign final priority**: High if any agent rated it High; escalate if multiple agents flagged independently
 3. **Generate recommendation**:
-   - 承認可 (Approve) — no High priority findings
-   - 要修正 (Needs revision) — 1-3 High priority findings
+   - 承認可 (Approve) — no High priority findings AND no unresolved `NC-*` findings
+   - 要修正 (Needs revision) — 1-3 High priority findings OR any `NC-*` findings
    - 要再設計 (Needs redesign) — multiple High findings or fundamental framing issue
 
 ### Step 4.5: Best Practice Research (for High/Medium findings with known patterns)

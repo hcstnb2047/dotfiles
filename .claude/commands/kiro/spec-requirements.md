@@ -38,6 +38,7 @@ Generate complete requirements for feature **$1** based on the project descripti
    - Group related functionality into logical requirement areas
    - Apply EARS format to all acceptance criteria
    - Use language specified in spec.json
+   - For any area where the intent is ambiguous or assumptions must be made, insert a `[NEEDS CLARIFICATION: <specific question>]` marker inline in the requirements text. These must be resolved (removed or answered) before `approvals.requirements.approved` can be set to true.
 
 4. **Update Metadata**:
    - Set `phase: "requirements-generated"`
@@ -81,6 +82,7 @@ Provide output in the language specified in spec.json with:
 - **Template Missing**: If template files don't exist, use inline fallback structure with warning
 - **Language Undefined**: Default to English (`en`) if spec.json doesn't specify language
 - **Incomplete Requirements**: After generation, explicitly ask user if requirements cover all expected functionality
+- **Unresolved NEEDS CLARIFICATION**: If `[NEEDS CLARIFICATION: ...]` markers remain in requirements.md when approval is attempted, stop and list all unresolved markers. Approval is blocked until all markers are resolved.
 - **Steering Directory Empty**: Warn user that project context is missing and may affect requirement quality
 - **Non-numeric Requirement Headings**: If existing headings do not include a leading numeric ID (for example, they use "Requirement A"), normalize them to numeric IDs and keep that mapping consistent (never mix numeric and alphabetic labels).
 

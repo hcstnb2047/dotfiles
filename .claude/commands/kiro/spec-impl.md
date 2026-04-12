@@ -39,6 +39,34 @@ Validate approvals: verify tasks are approved in spec.json (stop if not).
 
 - If `$2` provided: execute specified task numbers (e.g., "1.1" or "1,2,3")
 - Otherwise: execute all pending tasks (`- [ ]` in tasks.md)
+- Read `parallel_tasks` flag from spec.json (default: false if absent)
+
+## Step 2.5: Parallel Dispatch (skip if parallel_tasks is false or $2 is a single task)
+
+If `spec.json.parallel_tasks` is `true` AND the selected task list contains tasks marked with `(P)`:
+
+1. **Split tasks**:
+   - Parallel group: selected tasks with `(P)` marker
+   - Sequential queue: selected tasks without `(P)` marker
+
+2. **Launch parallel subagents**: For each task in the parallel group, spawn an Agent subagent concurrently with:
+   - `isolation: "worktree"` to get an isolated git worktree (prevents file conflicts between parallel tasks)
+   - Full spec context: contents of spec.json, requirements.md, design.md, tasks.md, and all `.kiro/steering/` files
+   - Assigned task: the single task ID and its description from tasks.md
+   - Instructions: Execute exactly one G-E Loop cycle (RED → GREEN → REFACTOR) for the assigned task following the Step 3 logic below; return a structured result: `{ "task_id": "...", "status": "pass"|"blocked", "worktree_branch": "<branch name>", "changed_files": ["<path>", ...], "error_context": {...}|null, "attempts": N }`
+   - Do NOT mark tasks.md inside subagents (parent handles all writes)
+
+3a. **Merge worktrees**: After all parallel agents complete, for each passed task:
+   - `git merge --no-ff <worktree_branch>` to integrate changes
+   - If merge conflict occurs: record as `blocked` with `"root_cause_hint": "merge conflict with <other_task_id>"`
+
+3. **Collect results**: Wait for all parallel agents to complete; aggregate pass/fail + error_context
+
+4. **Update tasks.md**: For each passed task mark `[x]`; for blocked tasks record error_context
+
+5. **Run sequential queue**: Execute remaining non-(P) tasks one by one using Step 3 loop below
+
+6. **Skip Step 3** entirely if all selected tasks were handled in parallel (no sequential queue remains)
 
 ## Step 3: Execute with TDD + G-E Loop
 
@@ -79,14 +107,18 @@ repeat:
     Result: COVERED | MISSING items
 
   ── STRUCTURED ERROR CONTEXT (on FAIL) ────────────────────
-  Build error_context as structured data for next attempt:
+  Build error_context as structured JSON for next attempt.
+  Use `spec.json.feedback_format` (default: "json") — always use JSON format:
   {
+    "verdict": "fail",
     "attempt": <n>,
     "failed_check": "unit" | "e2e",
+    "failed_criteria": ["<criterion that was violated>", ...],
     "failing_tests": ["<test name>: <assertion>", ...],
     "error_output": "<truncated stderr, max 500 chars>",
     "screenshot_path": "<path or null>",
-    "root_cause_hint": "<one sentence diagnosis>"
+    "root_cause_hint": "<one sentence diagnosis>",
+    "suggested_fix": "<specific change needed to pass — file:line if known>"
   }
 
   ── DECISION ──────────────────────────────────────────────
