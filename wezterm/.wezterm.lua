@@ -127,6 +127,8 @@ config.keys = {
   -- ペイン分割
   { key = 'd', mods = 'CTRL|SHIFT', action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' } },
   { key = 'e', mods = 'CTRL|SHIFT', action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' } },
+  -- ペインだけ閉じる（Ctrl+Shift+W はタブごと閉じるので、分割したペインの個別クローズ用）
+  { key = 'x', mods = 'CTRL|SHIFT', action = wezterm.action.CloseCurrentPane { confirm = false } },
   -- フォントサイズ調整
   { key = 'u', mods = 'CTRL|SHIFT', action = wezterm.action.IncreaseFontSize },
   { key = 'd', mods = 'CTRL',       action = wezterm.action.DecreaseFontSize },
