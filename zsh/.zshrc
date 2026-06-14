@@ -86,8 +86,15 @@ export LIFE_DATA="/home/tnb/life-data"
 # dotfiles aliases
 [ -f "$HOME/dotfiles/zsh/aliases.zsh" ] && source "$HOME/dotfiles/zsh/aliases.zsh"
 
-# Auto-attach tmux on SSH (for scrollback support)
-# 接続ごとに独立した新規セッションを作成（並列作業を可能にするため）
-if [ -z "$TMUX" ]; then
-  exec tmux new-session
+# SSH接続時は単一の main セッションに集約（再発防止・2026-06-14）
+# 並列作業は main 内の tmux ウィンドウ/ペイン、または worktree(lcw.sh)で行う
+# ガード: 対話シェルのみ・tmux外のみ・SSH接続時のみ・tmux存在時のみ（cron/Bashツール暴発防止）
+if [[ $- == *i* ]] && [ -z "$TMUX" ] && [ -n "$SSH_CONNECTION" ] && command -v tmux >/dev/null 2>&1; then
+  exec tmux new-session -A -s main
 fi
+
+# ntn (Notion CLI): このサーバーはOSキーチェーン無しのためファイルベース認証
+export NOTION_KEYRING=0
+
+# browser MCP は通常セッションでは自動起動しない（メモリ節約・2026-06-14）。UI作業時のみ:
+alias claudeui='claude --mcp-config ~/.claude/browser-mcp.json'
