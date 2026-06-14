@@ -86,11 +86,17 @@ export LIFE_DATA="/home/tnb/life-data"
 # dotfiles aliases
 [ -f "$HOME/dotfiles/zsh/aliases.zsh" ] && source "$HOME/dotfiles/zsh/aliases.zsh"
 
-# SSH接続時は単一の main セッションに集約（再発防止・2026-06-14）
-# 並列作業は main 内の tmux ウィンドウ/ペイン、または worktree(lcw.sh)で行う
+# SSH接続時のtmux（スマートアタッチ・2026-06-15）:
+#   デタッチ済みセッションがあれば再接続（切断からの復帰）、無ければ新規作成（独立並列のため）
+#   → 同時に複数ターミナルを開けば各々が独立セッション。再接続は既存を使い回すので無限増殖しない
 # ガード: 対話シェルのみ・tmux外のみ・SSH接続時のみ・tmux存在時のみ（cron/Bashツール暴発防止）
 if [[ $- == *i* ]] && [ -z "$TMUX" ] && [ -n "$SSH_CONNECTION" ] && command -v tmux >/dev/null 2>&1; then
-  exec tmux new-session -A -s main
+  _detached=$(tmux ls -F '#{session_attached} #{session_name}' 2>/dev/null | awk '$1==0{print $2; exit}')
+  if [ -n "$_detached" ]; then
+    exec tmux attach -t "$_detached"
+  else
+    exec tmux new-session
+  fi
 fi
 
 # ntn (Notion CLI): このサーバーはOSキーチェーン無しのためファイルベース認証
