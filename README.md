@@ -11,7 +11,8 @@ dotfiles/
 ├── .claude/
 │   ├── commands/       # Claude Code カスタムコマンド (.md)
 │   ├── statusline.sh   # Claude Code ステータスライン（bash）
-│   └── statusline.py   # Claude Code ステータスライン（Python）
+│   ├── statusline.py   # Claude Code ステータスライン（Python）
+│   └── README.md       # ステータスライン詳細ドキュメント
 ├── bin/
 │   ├── lv              # life-claude セッション起動スクリプト
 │   └── lvn             # life-claude 新規セッション起動スクリプト
@@ -84,6 +85,8 @@ Sonnet 4.6  life-claude  ░░░░░░░░░░  9%  18k/200k  $0.45
 | `$0.45` | セッション累計コスト |
 
 `~/.claude/settings.json` の `statusLine` が `~/.claude/statusline.sh`（dotfilesへのシンボリックリンク）を呼び出す構成。
+
+仕組み・各設定値の意味・カスタマイズ・トラブルシュートは [.claude/README.md](.claude/README.md) を参照。
 
 ## 更新の反映
 
