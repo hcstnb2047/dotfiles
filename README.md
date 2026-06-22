@@ -10,14 +10,15 @@ dotfiles/
 ├── install.ps1         # Windows セットアップスクリプト
 ├── .claude/
 │   ├── commands/       # Claude Code カスタムコマンド (.md)
-│   ├── statusline.sh   # Claude Code ステータスライン（bash）
-│   ├── statusline.py   # Claude Code ステータスライン（Python）
+│   ├── statusline.sh   # Claude Code ステータスライン（bash・branch表示対応）
+│   ├── statusline.py   # Claude Code ステータスライン（Python・git branch検出）
 │   └── README.md       # ステータスライン詳細ドキュメント
 ├── bin/
 │   ├── lv              # life-claude セッション起動スクリプト
 │   └── lvn             # life-claude 新規セッション起動スクリプト
 ├── tmux/
-│   └── .tmux.conf      # tmux 設定
+│   ├── .tmux.conf      # tmux 設定（下部バーに project ⎇ branch を常時表示）
+│   └── tmux-branch.sh  # status-right 用 git ブランチ取得部品（ツール横断）
 ├── wezterm/
 │   └── .wezterm.lua    # WezTerm 設定
 └── zsh/
@@ -72,13 +73,14 @@ powershell -ExecutionPolicy Bypass -File $env:USERPROFILE\dotfiles\install.ps1
 ターミナル下部に以下の形式で表示：
 
 ```
-Sonnet 4.6  life-claude  ░░░░░░░░░░  9%  18k/200k  $0.45
+Sonnet 4.6  life-claude ⎇ main  ░░░░░░░░░░  9%  18k/200k  $0.45
 ```
 
 | 項目 | 内容 |
 |------|------|
 | `Sonnet 4.6` | 使用中のモデル名 |
 | `life-claude` | 現在のプロジェクト名 |
+| `⎇ main` | 現在チェックアウト中の git ブランチ（非gitなら非表示） |
 | `░░░░░░░░░░` | コンテキスト使用率バー（10段階） |
 | `9%` | コンテキスト使用率 |
 | `18k/200k` | 使用トークン数 / 最大コンテキストサイズ |
@@ -87,6 +89,25 @@ Sonnet 4.6  life-claude  ░░░░░░░░░░  9%  18k/200k  $0.45
 `~/.claude/settings.json` の `statusLine` が `~/.claude/statusline.sh`（dotfilesへのシンボリックリンク）を呼び出す構成。
 
 仕組み・各設定値の意味・カスタマイズ・トラブルシュートは [.claude/README.md](.claude/README.md) を参照。
+
+## tmux ステータスバー（ツール横断）
+
+Claude Code のステータスラインは Claude のセッション内でしか出ない。Codex CLI には自前ステータスラインを差し込む仕組みが無いため、**ツールを問わず常時見える git ブランチ／プロジェクトは tmux 下部バー（`status-right`）に出す**。Claude でも Codex でも素のシェルでも同じく見える。
+
+```
+ main  …(window)…   life-claude ⎇ feat/foo   2026-06-22 13:08
+```
+
+| 項目 | 内容 |
+|------|------|
+| `life-claude` | カレントペインのディレクトリ名（tmux ネイティブ `#{b:pane_current_path}`） |
+| `⎇ feat/foo` | カレントペインの git ブランチ（`tmux/tmux-branch.sh` が返す・非gitなら非表示） |
+| `2026-06-22 13:08` | 日時（既存） |
+
+- `pane_current_path` 基準なので、worktree（`life-claude-<task>`）でも仕事の別リポジトリでも、そのペインのリポジトリのブランチが出る。
+- `status-interval`（15秒）ごとに再描画＝ブランチ切替も追従。
+- `.tmux.conf` は `~/dotfiles/tmux/tmux-branch.sh` を絶対パスで参照する（dotfiles を `~/dotfiles` にクローンしている前提）。
+- モデル名・コンテキスト％は各ツールの TUI フッターが出すので、**tmux バー（project+branch）＋ ツールのフッター（model+context）** で Claude のステータスラインと同等の情報量になる。
 
 ## 更新の反映
 

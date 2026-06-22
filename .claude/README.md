@@ -19,17 +19,22 @@ install 方法（`install.sh` が `~/.claude/` へ symlink）は親リポジト�
 ターミナル最下部に、現在のセッション状態を1行で表示する。
 
 ```
-Sonnet 4.6  life-claude  ████░░░░░░  37%  74k/200k  $1.23
+Sonnet 4.6  life-claude ⎇ main  ████░░░░░░  37%  74k/200k  $1.23
 ```
 
 | 表示 | 意味 |
 |------|------|
 | `Sonnet 4.6` | 使用中モデルの表示名（薄色） |
 | `life-claude` | カレントプロジェクト名（ディレクトリ末尾） |
+| `⎇ main` | 現在チェックアウト中の git ブランチ（シアン・非gitなら非表示） |
 | `████░░░░░░` | コンテキスト使用率バー（10段階・`█`=使用 / `░`=空き） |
 | `37%` | コンテキスト使用率 |
 | `74k/200k` | 使用トークン数 / 最大コンテキストサイズ（薄色） |
 | `$1.23` | セッション累計コスト USD（薄色） |
+
+> ブランチは `cwd` 起点に `git -C <cwd> rev-parse --abbrev-ref HEAD`（timeout 1秒）で取得。detached HEAD は短縮SHA、非git/取得失敗時は欄ごと消える。worktree や仕事の別リポジトリでも、そのセッションのリポジトリのブランチが出る。
+>
+> tmux 下部バーにも同じ `project ⎇ branch` を出している（Codex など Claude 以外でも常時見えるツール横断面）。詳細は親 [README.md](../README.md) の「tmux ステータスバー」節。
 
 ### 仕組み
 
@@ -80,6 +85,7 @@ Claude Code が渡す JSON のうち、参照しているキー：
 |----------|------|------------------------|
 | `model.display_name` | モデル名 | `"claude"` |
 | `workspace.project_dir`（無ければ `cwd`） | プロジェクト名の元 | `"-"` |
+| `cwd`（無ければ `project_dir`） | git ブランチ取得の起点 | ブランチ非表示 |
 | `context_window.used_percentage` | 使用率 % | `0` |
 | `context_window.total_input_tokens` | 使用トークン数 | `0` |
 | `context_window.context_window_size` | 最大コンテキスト | `200000` |
@@ -95,6 +101,7 @@ py が `KEY="value"` 形式で出力 → sh が `eval` で取り込む。
 |------|------|-----|
 | `MODEL` | モデル表示名 | `Sonnet 4.6` |
 | `PROJECT` | プロジェクト名 | `life-claude` |
+| `BRANCH` | git ブランチ（非gitは空文字） | `main` |
 | `PCT` | 使用率（整数） | `37` |
 | `TOKENS` | 使用/最大トークン | `74k/200k` |
 | `COST` | コスト（小数2桁） | `1.23` |
@@ -131,6 +138,7 @@ empty=$(( 20 - filled ))
 | 症状 | 確認 |
 |------|------|
 | 何も出ない | `echo '{}' \| bash ~/.claude/statusline.sh` で出力を確認。settings.json に `statusLine` があるか |
+| ブランチが出ない | その `cwd` が git リポジトリか（非gitは仕様で非表示）。`git -C <cwd> rev-parse --abbrev-ref HEAD` が通るか確認 |
 | `python3: command not found` | python3 を入れる（このスクリプトの必須依存） |
 | 編集が反映されない | `~/.claude/statusline.sh` が dotfiles への **symlink** か確認（`ls -l`）。実体コピーだと dotfiles 編集が効かない → `bash ~/dotfiles/install.sh` で貼り直す |
 | 数値がずれる | Claude Code 側の JSON スキーマ変更の可能性。`statusline.py` の参照キーを実際の入力JSONと突き合わせる |
