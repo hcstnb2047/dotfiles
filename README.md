@@ -109,6 +109,18 @@ Claude Code のステータスラインは Claude のセッション内でしか
 - `.tmux.conf` は `~/dotfiles/tmux/tmux-branch.sh` を絶対パスで参照する（dotfiles を `~/dotfiles` にクローンしている前提）。
 - モデル名・コンテキスト％は各ツールの TUI フッターが出すので、**tmux バー（project+branch）＋ ツールのフッター（model+context）** で Claude のステータスラインと同等の情報量になる。
 
+### ブランチ表示の住み分け
+
+git ブランチを出す面は2つ。**WezTerm ネイティブには意図的に入れていない**。
+
+| 面 | 表示 | 効く範囲 |
+|----|------|----------|
+| Claude ステータスライン | `⎇ branch` | Claude Code セッション内 |
+| tmux 下部バー | `project ⎇ branch` | tmux 内なら何でも（Claude / Codex / 素のシェル） |
+| WezTerm | （入れない） | — tmux バーが代替 |
+
+WezTerm に入れない理由：常に WezTerm の中で tmux を回す運用のため、WezTerm からは「tmux クライアント1個」しか見えず、**アクティブな tmux ペインの cwd/ブランチは取得できない**（`pane:get_current_working_dir()` は OSC 7 依存で、zsh は未送出）。ペイン単位の正確なブランチは tmux バーが既に出しているので、WezTerm 版は二重表示＆精度低下になるだけ。tmux を使わず WezTerm 直叩きする運用が増えたら「tmux 外だけ出す」版を検討する。
+
 ## 更新の反映
 
 dotfiles を編集・プッシュすると、シンボリックリンク経由で全マシンに即時反映される。`install.sh` の再実行は不要。
