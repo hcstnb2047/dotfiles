@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import sys, json, subprocess
+import sys, json, os.path, subprocess
 
 try:
     d = json.load(sys.stdin)
@@ -9,7 +9,7 @@ except Exception:
 
 model = d.get("model", {}).get("display_name", "claude")
 pdir  = d.get("workspace", {}).get("project_dir") or d.get("cwd", "")
-proj  = pdir.rstrip("/").split("/")[-1] if pdir else "-"
+proj  = os.path.basename(pdir.rstrip("/\\")) if pdir else "-"
 
 # 現在チェックアウトしている git ブランチ（worktree/仕事リポジトリでも作業対象が分かるように）
 cwd = d.get("cwd") or pdir
