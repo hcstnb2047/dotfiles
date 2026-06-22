@@ -1,15 +1,32 @@
 #!/usr/bin/env python3
-import sys, json
+import sys, json, subprocess
 
 try:
     d = json.load(sys.stdin)
 except Exception:
-    print('MODEL="claude"\nPROJECT="-"\nPCT=0\nTOKENS="0/200k"\nCOST="0.00"')
+    print('MODEL="claude"\nPROJECT="-"\nBRANCH=""\nPCT=0\nTOKENS="0/200k"\nCOST="0.00"')
     sys.exit(0)
 
 model = d.get("model", {}).get("display_name", "claude")
 pdir  = d.get("workspace", {}).get("project_dir") or d.get("cwd", "")
 proj  = pdir.rstrip("/").split("/")[-1] if pdir else "-"
+
+# 現在チェックアウトしている git ブランチ（worktree/仕事リポジトリでも作業対象が分かるように）
+cwd = d.get("cwd") or pdir
+branch = ""
+if cwd:
+    try:
+        branch = subprocess.run(
+            ["git", "-C", cwd, "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True, text=True, timeout=1,
+        ).stdout.strip()
+        if branch == "HEAD":  # detached HEAD: 短縮SHAにフォールバック
+            branch = subprocess.run(
+                ["git", "-C", cwd, "rev-parse", "--short", "HEAD"],
+                capture_output=True, text=True, timeout=1,
+            ).stdout.strip()
+    except Exception:
+        branch = ""
 cw    = d.get("context_window", {})
 pct   = int(cw.get("used_percentage") or 0)
 used  = int(cw.get("total_input_tokens") or 0)
@@ -23,4 +40,4 @@ def fmt(n):
 
 tokens = f"{fmt(used)}/{fmt(total)}"
 
-print(f'MODEL="{model}"\nPROJECT="{proj}"\nPCT={pct}\nTOKENS="{tokens}"\nCOST="{cost:.2f}"')
+print(f'MODEL="{model}"\nPROJECT="{proj}"\nBRANCH="{branch}"\nPCT={pct}\nTOKENS="{tokens}"\nCOST="{cost:.2f}"')
