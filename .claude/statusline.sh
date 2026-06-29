@@ -1,6 +1,8 @@
 #!/bin/bash
-# Claude Code custom status line
-# Format: model  project [branch]  bar  pct%  tokens  $cost
+# Claude Code custom status line（2行）。描画は statusline.py に一本化し、
+# ここは Python 検出と入力受け渡しだけを担う。
+#   line1: model  project ⎇branch  ⇡PR#N <state>  session_name
+#   line2: bar pct%  tokens  $cost  5h/7d rate-limit(↻reset)
 
 # Python インタプリタ検出（python3 が PATH に無い環境=Windows Git Bash 等に対応）
 PYTHON=""
@@ -16,29 +18,8 @@ fi
 input=$(cat)
 
 if [ -z "$PYTHON" ]; then
-    printf "claude  -  ░░░░░░░░░░  0%%  0/200k  \$0.00\n"
+    printf "claude  -\n░░░░░░░░░░  0%%  0/200k  \$0.00\n"
     exit 0
 fi
 
-# echo はバックスラッシュを解釈するため printf を使う
-eval "$(printf '%s\n' "$input" | "$PYTHON" "$(dirname "$0")/statusline.py")"
-
-# Progress bar (10 chars)
-filled=$(( PCT / 10 ))
-[ "$filled" -gt 10 ] && filled=10
-empty=$(( 10 - filled ))
-bar=""
-# pure bash（seq 非依存）
-for (( i=0; i<filled; i++ )); do bar="${bar}█"; done
-for (( i=0; i<empty;  i++ )); do bar="${bar}░"; done
-
-dim="\033[2m"
-cyan="\033[36m"
-r="\033[0m"
-
-# ブランチ（git管理下のときだけ表示）
-branchseg=""
-[ -n "$BRANCH" ] && branchseg=" ${cyan}⎇ ${BRANCH}${r}"
-
-printf "${dim}%s${r}  %s${branchseg}  %s  %s%%  ${dim}%s  \$%s${r}\n" \
-  "$MODEL" "$PROJECT" "$bar" "$PCT" "$TOKENS" "$COST"
+printf '%s' "$input" | "$PYTHON" "$(dirname "$0")/statusline.py"
