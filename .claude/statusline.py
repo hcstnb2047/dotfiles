@@ -9,10 +9,24 @@ except Exception:
 
 model = d.get("model", {}).get("display_name", "claude")
 pdir  = d.get("workspace", {}).get("project_dir") or d.get("cwd", "")
+
+# セッション内で cd した先に追従する（PostToolUse:Bash の statusline-track-cwd.sh が書く）。
+# Claude が渡す cwd は起動ディレクトリに固定されるため、hook が残した focus を優先採用する。
+# ファイルは session_id でキーされ、並列セッション同士が混ざらない。
+sid = d.get("session_id") or ""
+if sid:
+    try:
+        with open(f"/tmp/claude-statusline-focus-{sid}") as fh:
+            cand = fh.read().strip()
+        if cand and os.path.isdir(cand):
+            pdir = cand
+    except Exception:
+        pass
+
 proj  = os.path.basename(pdir.rstrip("/\\")) if pdir else "-"
 
 # 現在チェックアウトしている git ブランチ（worktree/仕事リポジトリでも作業対象が分かるように）
-cwd = d.get("cwd") or pdir
+cwd = pdir or d.get("cwd")
 branch = ""
 if cwd:
     try:
