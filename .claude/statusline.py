@@ -110,6 +110,18 @@ def main():
         return f"{col}{label}{round(p)}%{rs}{R}"
 
     rl = d.get("rate_limits") or {}
+
+    # cron(claude_reset_notify.py)が本物のリセット時刻/7d%を読めるよう永続化(best-effort)。
+    # Claude Code は rate_limits を transcript に残さないため、唯一の native ソースがここ。
+    if rl:
+        try:
+            _cdir = os.path.expanduser("~/.cache/claude-statusline")
+            os.makedirs(_cdir, exist_ok=True)
+            with open(os.path.join(_cdir, "rate_limits.json"), "w") as _fh:
+                json.dump({"rate_limits": rl, "written_at": now}, _fh)
+        except Exception:
+            pass
+
     rl_seg = "  ".join(s for s in (
         rlpart("5h ", rl.get("five_hour")),
         rlpart("7d ", rl.get("seven_day")),
